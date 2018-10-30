@@ -1,6 +1,13 @@
-// export { day } from './Day';
-// export { week } from './Week';
-// export { month } from './Month';
-// export { year } from './Year';
-// export { header } from './Header';
-export { Calendar } from './Calendar';
+import { combineReducers } from 'redux';
+import { routerReducer } from '../router';
+
+import { main } from './Main';
+import { authentication } from './Auth';
+import { calendar } from './Calendar';
+
+
+export default combineReducers({
+  routing: routerReducer,
+  authentication,
+  calendar,
+  main });

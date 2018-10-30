@@ -1,1 +1,3 @@
-export {login} from './action';
+
+import { Header } from './Header';
+export default Header;

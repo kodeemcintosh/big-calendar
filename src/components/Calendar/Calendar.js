@@ -1,35 +1,111 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import { KwikCalendar } from '../../services/calendar';
-import { setDaysInYear } from '../../redux/Calendar/action';
-import { Pane, Card } from 'evergreen-ui';
+import { KwikCalendar, weekdays } from '../../services/calendar';
+import { setCurrentDate } from '../../redux/Calendar/action';
+import { calculateHeight, calculateWidth } from './../../services/viewport';
+import { Pane, Card, Text } from 'evergreen-ui';
+import { CalendarTitle } from './CalendarTitle';
 
 
-const Today = new Date();
-class Calendar extends Component {
+class Calendar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      year: []
+      currentMode: 'MONTH',
+      currentMonth: new Date().getMonth(),
+      daysInYear: [],
+      weeksInYear: [],
     }
   }
   componentDidMount() {
-    let k = new KwikCalendar(new Date().getFullYear());
-    console.log("Kwik: ", k.daysInYear);
-    console.log("Weeks: ", k.monthsInYear);
+    const today = new Date();
+    const { setCurrentDate } = {...this.props};
 
-    // api call to get foodList and mealList for each day of the year
-    // this.props.setDaysInYear(k.daysInYear);
-    this.setState({ year: k.daysInYear})
+    let k = new KwikCalendar(new Date().getFullYear());
+    if (this.props.daysInYear.length === 0 &&
+      this.props.monthsInYear.length === 0) {
+        let daysInYear = k.daysInYear;
+
+      this.setState({ daysInYear });
+      this.setState({ monthsInYear: k.calcMonthsInYear(daysInYear) });
+    }
   }
 
+  toDate = (unit) => {
+    let { currentDate, currentMonth, currentYear } = {...this.props};
+
+    switch(unit) {
+
+      case "DAY":
+        this.props.setCurrentDate({ currentDate: currentDate--, currentDay: weekdays[new Date(currentYear, currentMonth, currentDate - 1).getDay()]});
+      case "MONTH":
+        this.props.setCurrentMonth({ currentMonth: currentMonth-- });
+      case "YEAR":
+        this.props.setCurrentYear({ currentYear: currentYear-- });
+      default:
+        return {};
+    }
+  }
+
+  nextDate = (unit) => {
+    let { currentDate, currentMonth, currentYear } = {...this.props};
+
+    switch(unit) {
+
+      case "DAY":
+        this.props.setCurrentDate({ currentDate: currentDate++, currentDay: weekdays[new Date(currentYear, currentMonth, currentDate + 1).getDay()]});
+      case "MONTH":
+        this.props.setCurrentMonth({ currentMonth: currentMonth++ });
+      case "YEAR":
+        this.props.setCurrentYear({ currentYear: currentYear++ });
+      default:
+        return {};
+    }
+  }
+  prevDate = (unit) => {
+    let { currentDate, currentMonth, currentYear } = {...this.props};
+
+    switch(unit) {
+
+      case "DAY":
+        this.props.setCurrentDate({ currentDate: currentDate--, currentDay: weekdays[new Date(currentYear, currentMonth, currentDate - 1).getDay()]});
+      case "MONTH":
+        this.props.setCurrentMonth({ currentMonth: currentMonth-- });
+      case "YEAR":
+        this.props.setCurrentYear({ currentYear: currentYear-- });
+      default:
+        return {};
+    }
+  }
+
+
   render() {
-    let { daysInWeek } = {...this.state};
+    // let {  } = {...this.state};
+    let { currentYear, currentMonth, currentWeek, currentDate, currentDay } = {...this.props};
+
+    const renderWeek = () => {
+
+    };
+
     return (
       <div>
+        <CalendarTitle
+          currentYear={currentYear}
+          currentMonth={currentMonth}
+          currentWeek={currentWeek}
+          currentDate={currentDate}
+          currentDay={currentDay}
+          />
         <Pane
-          height={120}
-          width={240}
+          is="section"
+          background="tint2"
+          elevation={2}
+          // hoverElevation={3}
+          // marginY={60}
+          marginX={20}
+          // padding={30}
+          width={calculateWidth() - 40}
+          height={calculateHeight() - 100}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -43,13 +119,16 @@ class Calendar extends Component {
 
 function mapStateToProps(state) {
   return {
-    daysInYear: state.daysInYear
+    daysInWeek: state.calendar.daysInWeek,
+    daysInYear: state.calendar.daysInYear,
+    weeksInMonth: state.calendar.weeksInMonth,
+    weeksInYear: state.calendar.weeksInYear,
+    monthsInYear: state.calendar.monthsInYear
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    setDaysInYear: (days) => dispatch(setDaysInYear(days))
   }
 }
 

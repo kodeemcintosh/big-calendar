@@ -1,25 +1,21 @@
-import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
-// import { browserHistory, Router, Route, IndexRoute } from 'react-router';
-// import { syncHistoryWithStore, routerMiddleware } from 'react-router-redux';
-import thunk from 'redux-thunk';
-import { routerReducer } from '../router';
+import { createStore, applyMiddleware, compose} from 'redux';
+import loggerMiddleware from './logger';
+import monitorReducerEnhancer from './perfMonitor';
+import thunkMiddleware from 'redux-thunk';
 
 import initialState from './initialState';
-import * as reducers from './index';
+import rootReducer from './index';
 
-
-const rootReducer = combineReducers({
-  reducers,
-  routing: routerReducer
-});
+const middleware = applyMiddleware(loggerMiddleware, thunkMiddleware);
+const composedEnhancers = compose(
+  middleware,
+  monitorReducerEnhancer,
+  window.devToolsExtension ? window.devToolsExtension() : f => f
+);
 
 
 export const store = createStore(
   rootReducer,
   initialState,
-  compose(
-  applyMiddleware(thunk),
-  window.devToolsExtension ? window.devToolsExtension() : f => f
-));
-
-// export const history = syncHistoryWithStore(browserHistory, store);
+  composedEnhancers
+);

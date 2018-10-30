@@ -2,7 +2,7 @@ import initialState from "../initialState";
 import { LOGIN, REGISTER } from "./types";
 
 
-function authentication(state = initialState.day, action) {
+export function authentication(state = initialState.authentication, action) {
 
   switch(action.type) {
 
@@ -27,5 +27,3 @@ function authentication(state = initialState.day, action) {
    }
 
 };
-
-export default authentication;

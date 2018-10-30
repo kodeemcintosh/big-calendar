@@ -1,17 +1,6 @@
 import { addDays } from 'date-fns';
 
-export class KwikCalendar {
-  constructor(year) {
-
-    this._year = year;
-  }
-
-  // returns true or false depending on whether or not it is a leap year
-  isLeap = (year) => new Date(year, 1, 29).getDate() === 29;
-
-  yearLength = this.isLeap(this._year) ? 364 : 365;
-
-  weekdays = [
+export const weekdays = [
     'Sunday',
     'Monday',
     'Tuesday',
@@ -20,6 +9,34 @@ export class KwikCalendar {
     'Friday',
     'Saturday'
   ];
+
+export class KwikCalendar {
+  constructor(year) {
+
+    this._year = year;
+  }
+
+  get daysInYear() {
+    return this.calcDaysInYear();
+  }
+  get monthsInYear() {
+    return this.calcMonthsInYear();
+  }
+
+  get todayOfTheWeek() {
+    return this.getTodayOfTheWeek();
+  }
+
+  getTodayOfTheWeek = () => {
+    return weekdays[new Date().getDay()];
+  }
+
+
+  // returns true or false depending on whether or not it is a leap year
+  isLeap = (year) => new Date(year, 1, 29).getDate() === 29;
+
+  yearLength = this.isLeap(this._year) ? 364 : 365;
+
   months = [
     { name: 'January', length: 31},
     { name: 'February', length: this.isLeap(this._year) ? 29 : 28 },
@@ -35,14 +52,8 @@ export class KwikCalendar {
     { name: 'December', length: 31 }
   ];
 
-  get daysInYear() {
-    return this.calcDaysInYear();
-  }
-  get monthsInYear() {
-    return this.calcMonthsInYear();
-  }
-
   calcDaysInYear() {
+    console.time('calc');
     let daysInYear = [];
     let newDay = new Date(this._year, 1, 1).getDay();
 
@@ -56,7 +67,7 @@ export class KwikCalendar {
         // calendar stuff
         week: {
           dayInWeek: newDay.getDay(),
-          weekday: this.weekdays[newDay.getDay()]
+          weekday: weekdays[newDay.getDay()]
         },
         month: {
           name: this.months[newDay.getMonth()].name,
@@ -71,13 +82,17 @@ export class KwikCalendar {
       });
     }
 
+    console.timeEnd('calc');
     return daysInYear;
   }
 
-  calcMonthsInYear() {
-    let daysInYear = this.calcDaysInYear();
+  calcMonthsInYear(daysInYear) {
     let yearCount = 0;
     let monthsInYear = [];
+
+    if(daysInYear === 0) {
+      daysInYear = this.calcDaysInYear();
+    }
 
     for (let x = 0; x < 12; x++) {
       let month = {
